@@ -5,13 +5,13 @@
     <title>LiveCoder2 Demo</title>
     <meta http-equiv="cache-control" content="no-cache" />
     <meta http-equiv="pragma" content="no-cache" />
-  
+
   </head>
   <body style="margin:0;">
-	
-    <!--ui related-->
-    <script type="text/javascript" src="lib/dat.gui.js"></script>
-    <script type="text/javascript" src="lib/mousetrap.js"></script>
+   
+   <!--ui related-->
+    <script type="text/javascript" src="js/dat.gui.js"></script>
+    <script type="text/javascript" src="js/mousetrap.js"></script><!-- needed? -->
 	
 	<!-- APPS -->
 	
@@ -34,9 +34,9 @@
     <script type="text/javascript" src="app/tquery-world.dev.js"></script>
 	
 	<!--lively-->
-	<script type="text/javascript" src="app/lively.vm.dev.js"></script>
-    <!-- script type="text/javascript" src="app/lively.ast.dev.js"></script>
-    <script type="text/javascript" src="app/lively.vm.dev.js"></script -->
+	<script type="text/javascript" src="app/lively/lively.vm.dev.js"></script>
+    <!-- script type="text/javascript" src="app/lively/lively.ast.dev.js"></script -->
+    <!-- script type="text/javascript" src="app/lively/lively.lang.dev.js"></script -->
 	
 	<!--lively-2-lively-->
     <!--<script type="text/javascript" src="http://lively-web.org/users/robertkrahn/node-lively2lively/lively2lively-browserified.js?name=three-codeeditor-simple&baseURL=http://lively-web.org:8080&autoload=true"></script></style>-->
@@ -53,73 +53,60 @@
       var useVR = !!navigator.mozGetVRDevices || !!navigator.getVRDevices;
       var isMac = navigator.userAgent.indexOf("Mac OS X") > -1;
       THREE.World.create(document.body, {useOrbitControl: true, useVR: useVR}, function(err, world) {
-		
+
         world.startLoop();
         world.renderer.setClearColor(0x333F47, 1);
         world.camera.position.set(0,200,320);
         world.camera.far = 100000;
         world.camera.updateProjectionMatrix();
-		
+
         // -=-=-=-=-=-=-=-=-=-=-=-=-=-
         // some geometry to play with
         // -=-=-=-=-=-=-=-=-=-=-=-=-=-
-		
+
         var plane = new THREE.Mesh(
-            new THREE.PlaneGeometry(1000,1000, 20,20),
+            new THREE.PlaneBufferGeometry(1000,1000, 20,20),
             new THREE.MeshBasicMaterial({
               color: 0x00ffff, wireframe: true,
               side: THREE.DoubleSide}));
         plane.position.set(plane.position.x/2, 0, plane.position.z/2);
         plane.rotation.x = Math.PI/2
         world.scene.add(plane);
-		
-		
+
+
         // -=-=-=-=-=-=-=-=-=-
         // events + controls
         // -=-=-=-=-=-=-=-=-=-
         var DOMEvents = THREEx.DomEvents;
         world.events = new DOMEvents(world.camera, world.renderer.domElement);
-        var tQueryWorld = tQueryWorld = setupTQuery(world);
-		
+        setupTQuery(world);
+
         // -=-=-=-=-=-=-=-=-=-
         // prepare code editor
         // -=-=-=-=-=-=-=-=-=-
-		
-        var codeEditor = new THREE.CodeEditor({
-          events: world.events,
-          vr: useVR ? world.vr : null
-        });
+
+        var codeEditor = new THREE.CodeEditor(world.renderer.domElement, world.events);
         world.scene.add(codeEditor);
         codeEditor.position.set(0,225,-200)
-		
-        codeEditor.aceEditor.commands.addCommands(
-          THREE.CodeEditor.commands.javascript);
-        ace.config.set("basePath", "app/three-codeeditor");
-        ace.config.set("modePath", "app/three-codeeditor");
-		
-        codeEditor.aceEditor.setTheme("ace/theme/twilight");
-        // FIXME setKeyboardHandler() is broken, it won't load the right amd module
-        codeEditor.aceEditor.setKeyboardHandler("emacs", function() {
-          codeEditor.aceEditor.keyBinding.addKeyboardHandler(
-            ace.require("ace/keyboard/emacs").handler);
-            var occurStartCommand = ace.require("ace/commands/occur_commands").occurStartCommand;
-            codeEditor.aceEditor.commands.addCommand(occurStartCommand);
-        });
-		
+
+        codeEditor.aceEditor.keyBinding.addKeyboardHandler(ace.require("ace/keyboard/emacs").handler);
+        var occurStartCommand = ace.require("ace/commands/occur_commands").occurStartCommand;
+        codeEditor.aceEditor.commands.addCommand(occurStartCommand);
+
         codeEditor.aceEditor.setOptions({
           enableBasicAutocompletion: true,
           enableLiveAutocompletion: false,
           enableSnippets: true
         });
         THREE.CodeEditor.autocomplete.installDynamicJSCompleterInto(codeEditor.aceEditor);
-		
+
         if (false) {
           codeEditor.aceEditor.setOption("mode", "ace/mode/html");
           codeEditor.setValue(htmlCode);
         } else {
           codeEditor.aceEditor.setOption("mode", "ace/mode/javascript");
-          // The demo is inspired by http://threejs.org/examples/#webgl_geometry_hierarchy2
-          var welcomeText = 
+		  
+          var intro = 
             "// 3D demo!\n"
             + "// -=-=-=-=-=\n"
             + "\n"
@@ -164,24 +151,22 @@
             + "                                ~~~~~~~~~\n"
             + "\n";
 			
-          codeEditor.setSize(600, 600);
-          codeEditor.setValue(welcomeText);
+		  codeEditor.setSize(400, 400);
+		  codeEditor.setValue(intro);
         }
-		
+
         if (world.orbitControl) {
           world.orbitControl.target = codeEditor.position.clone();
         } else world.camera.lookAt(codeEditor.position);
-		
+
         // For debugging
         window.world = world;
         window.codeEditor = codeEditor;
       });
+	  
     </script>
-	
-	<!-- LIVE TEST -->
-	
-    <script type="text/javascript" src="lib/gui.js"></script>
-	
+    
+	<script type="text/javascript" src="js/gui.js"></script>
 	
   </body>
 </html>

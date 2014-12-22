@@ -9785,7 +9785,7 @@ THREE.Geometry.prototype = {
 
 	merge: function ( geometry, matrix, materialIndexOffset ) {
 
-		if ( geometry instanceof THREE.Geometry === false ) {
+		if ( geometry instanceof THREE.PlaneGeometry === false ) {
 
 			console.error( 'THREE.Geometry.merge(): geometry not an instance of THREE.Geometry.', geometry );
 			return;
@@ -12437,9 +12437,9 @@ THREE.ObjectLoader.prototype = {
 
 				switch ( data.type ) {
 
-					case 'PlaneGeometry':
+					case 'PlaneBufferGeometry':
 
-						geometry = new THREE.PlaneGeometry(
+						geometry = new THREE.PlaneBufferGeometry(
 							data.width,
 							data.height,
 							data.widthSegments,
@@ -31618,20 +31618,20 @@ THREE.LatheGeometry = function ( points, segments, phiStart, phiLength ) {
 
 THREE.LatheGeometry.prototype = Object.create( THREE.Geometry.prototype );
 
-// File:src/extras/geometries/PlaneGeometry.js
+// File:src/extras/geometries/PlaneBufferGeometry.js
 
 /**
  * @author mrdoob / http://mrdoob.com/
  * based on http://papervision3d.googlecode.com/svn/trunk/as3/trunk/src/org/papervision3d/objects/primitives/Plane.as
  */
 
-THREE.PlaneGeometry = function ( width, height, widthSegments, heightSegments ) {
+THREE.PlaneBufferGeometry = function ( width, height, widthSegments, heightSegments ) {
 
-	console.info( 'THREE.PlaneGeometry: Consider using THREE.PlaneBufferGeometry for lower memory footprint.' );
+	console.info( 'THREE.PlaneBufferGeometry: Problems using THREE.PlaneBufferGeometry for lower memory footprint.' );
 
 	THREE.Geometry.call( this );
 
-	this.type = 'PlaneGeometry';
+	this.type = 'PlaneBufferGeometry';
 
 	this.parameters = {
 		width: width,
@@ -31644,7 +31644,7 @@ THREE.PlaneGeometry = function ( width, height, widthSegments, heightSegments ) 
 
 };
 
-THREE.PlaneGeometry.prototype = Object.create( THREE.Geometry.prototype );
+THREE.PlaneBufferGeometry.prototype = Object.create( THREE.Geometry.prototype );
 
 // File:src/extras/geometries/PlaneBufferGeometry.js
 

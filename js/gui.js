@@ -281,11 +281,11 @@ function setupDatGui(gui, userOptions, world, codeEditor) {
       storage.store();
     });
 
-    f1.add(userOptions, 'editor height', 100, window.innerHeight+400).listen().onChange(function(val) {
+    f1.add(userOptions, 'editor height', 200, window.innerHeight+400).listen().onChange(function(val) {
       codeEditor.setHeight(val);
       storage.store();
     });
-    var ctl = f1.add(userOptions, 'editor width', 100, window.innerWidth).listen().onChange(function(val) {
+    var ctl = f1.add(userOptions, 'editor width', 200, window.innerWidth).listen().onChange(function(val) {
       codeEditor.setWidth(val);
       storage.store();
     });
