@@ -5,16 +5,8 @@
 					(hackery version)
 		
 		
-
 		Source: https://github.com/cdglabs/CodeChisel3D
 
-	Demo: http://kustomzone.github.io/liveCoder2/demo/index.htm
-
-
-
-
-
-
-
+	  Demo: http://kustomzone.github.io/liveCoder2/demo.htm
 
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
