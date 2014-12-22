@@ -1,3 +1,11 @@
+// Users/robert/Lively/3D/three-world/three-world-with-tquery.dev.js
+
+// ======================================================================================================================
+
+
+// Tquery.js
+
+
 // tquery.js - https://github.com/jeromeetienne/tquery - MIT License
 /**
  * @fileOverview This file is the core of tQuery library. 
@@ -3008,3 +3016,435 @@ tQuery.mixinAttributes(tQuery.Texture, {
 });
 
 
+// ======================================================================================================================
+
+// tquery-interface.js
+
+
+function setupTQuery(threeState, thenDo) {
+  /*global tQuery, tQueryWorld, THREE*/
+
+  var state = threeState;
+  var scene = state.scene;
+  var world = window.tQueryWorld = tQuery.createWorld({scene: scene, camera: state.camera, renderer: state.renderer});
+
+  // if (state.orbitControl) world.setCameraControls(state.orbitControl);
+
+  // var domEvent = window.THREEdomEvent = new THREEx.DomEvents(state.camera, state.renderer.domElement);
+
+  // see https://github.com/mrdoob/three.js/issues/5587
+//   domEvent.pickObjFromDOMEvent = function(evt, objsToPick, camera) {
+//     var mouseCoords = domEvent._getRelativeMouseXY(evt);
+// 	var vector	    = new THREE.Vector3(mouseCoords.x, mouseCoords.y, 0.5);
+// 	var ray         = this._projector.pickingRay(vector, camera);
+// 	var intersects  = ray.intersectObjects(objsToPick);
+// 	return intersects[0];
+//   }
+
+//   domEvent._projector.pickingRay = function( coords, camera ) {
+//     var raycaster = new THREE.Raycaster();
+//     // the camera is assumed _not_ to be a child of a transformed object
+//     if ( camera instanceof THREE.PerspectiveCamera ) {
+//         raycaster.ray.origin.copy( camera.position );
+//         raycaster.ray.direction.set( coords.x, coords.y, 0.5 ).unproject( camera ).sub( camera.position ).normalize();
+//     } else if ( camera instanceof THREE.OrthographicCamera ) {
+//         raycaster.ray.origin.set( coords.x, coords.y, - 1 ).unproject( camera );
+//         raycaster.ray.direction.set( 0, 0, - 1 ).transformDirection( camera.matrixWorld );
+//     } else {
+//         console.error( 'ERROR: undefinedzunknown camera type.' );
+//     }
+//     return raycaster;
+//   }
+
+  tQuery.v = tQuery.v3 = tQuery.createVector3;
+
+  tQuery.createLine = function (from, to) {
+    var args = Array.prototype.slice.call(arguments);
+    if (args.length >= 6) {
+      from = tQuery.createVector3(args.slice(0,3));
+      to = tQuery.createVector3(args.slice(3,6));
+      args = args.slice(6);
+    } else {
+      from = tQuery.createVector3(from);
+      to = tQuery.createVector3(to);
+      args = args.slice(2);
+    }
+    var material = new THREE.LineBasicMaterial({ color: 0x0000ff });
+    var geometry = new THREE.Geometry();
+    geometry.vertices.push(from);
+    geometry.vertices.push(to);
+    var line = new THREE.Line(geometry, material);
+    return tQuery(line);
+  }
+
+  tQuery.dot = function(pos, radius) {
+    // var material = new THREE.MeshPhongMaterial({
+    //   color: 0xaaaaaa, specular: 0xffffff, shininess: 2,
+    //   vertexColors: THREE.FaceColors, shading: THREE.SmoothShading});
+    if (arguments.length >= 3) {
+      pos = tQuery.createVector3(arguments[0],arguments[1],arguments[2]);
+      radius = arguments[3];
+    }
+    var material = new THREE.MeshBasicMaterial({ color: "green" });
+    var radius = radius || 1; var segments = 12;
+    var dot = new THREE.Mesh(new THREE.SphereGeometry( radius, segments,segments), material );
+  	dot.castShadow = true;
+  	dot.receiveShadow = true;
+  	pos = tQuery.createVector3(pos || 0,0,0);
+    if (pos) dot.position.copy(pos)
+    return tQuery(dot);
+  }
+
+  tQuery.showCube = function(parent, bounds) {
+    var size = bounds.size();
+    var showCube = tQuery.createCube(size.x, size.y,size.z)
+      .addTo(parent)
+      .position(bounds.center())
+      .setBasicMaterial({wireframe: true, color: "red"})
+      .back();
+    setTimeout(showCube.detach.bind(showCube), 3*1000);
+  	return this;
+  }
+
+  tQuery.Object3D.prototype.root = function() {
+    var root, current = this.get(0);
+    while (current) { root = current; current = current.parent; }
+    return tQuery(root);
+  }
+
+  tQuery.Object3D.prototype.parent = function() {
+    var parents = [];
+    this.each(function(ea) { ea.parent && parents.push(ea.parent); });
+    var result = new tQuery.Object3D()
+    result._lists = parents;
+    return result;
+  }
+
+  tQuery.Object3D.prototype.show = function (bounds) {
+    bounds = buildBounds(this, bounds);
+
+    var root, current = this.get(0);
+    while((current = current.parent)) root = current;
+    tQuery.showCube(root, bounds);
+    return this;
+    
+    // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+    function buildBounds(tQueryObj, bounds) {
+      tQueryObj.each(function(obj3D) {
+        if (!!obj3D.geometry) {
+          var geo = obj3D.geometry;
+          geo.computeBoundingBox();
+          var tfm = obj3D.matrixWorld;
+          var box = geo.boundingBox.clone().applyMatrix4(tfm);
+          if (bounds) bounds.union(box); else bounds = box;
+          return;
+        }
+    
+        if (obj3D.children) {
+          obj3D.children.forEach(function(ea) {
+            buildBounds(tQuery(ea), bounds); });
+        }
+      });
+      return bounds;
+    }
+
+  }
+
+  tQuery.World.prototype.cameraLookDir = function() {
+    var camera = this.tCamera();
+    return new THREE.Vector3(0, 0, -1).applyEuler(camera.rotation, camera.eulerOrder);
+  }
+
+  tQuery.World.prototype.cameraViewportSizeIn = function(dist) {
+    var camera = this.tCamera();
+    var height = 2*dist * Math.tan(Math.PI * camera.fov / 360);
+    return height;
+  }
+
+  tQuery.World.prototype.cameraDistToFit = function(height) {
+    var camera = this.tCamera();
+    var dist = height / 2 / Math.tan(Math.PI * camera.fov / 360);
+  }
+
+  tQuery.World.prototype.dot = function(pos, radius) {
+    if (arguments.length >= 3) {
+      pos = tQuery.createVector3(arguments[0],arguments[1],arguments[2]);
+      radius = arguments[3];
+    }
+    if (!radius) radius = this.cameraViewportSizeIn(100)/20;
+    return tQuery.dot.apply(pos, radius).addTo(this);
+  }
+
+  tQuery.World.prototype.show = function(arg) {
+    var height = this.cameraViewportSizeIn(100)/20;
+    var pos;
+    if (arg && typeof arg.show === 'function') return arg.show();
+    else if (arguments.length > 0) pos = tQuery.createVector3.apply(tQuery, arguments);
+    else pos = tQuery.createVector3(0,0,0);
+    var bounds = new THREE.Box3(
+      pos.clone().sub(tQuery.createVector3(height/2,height/2,height/2)),
+      pos.clone().add(tQuery.createVector3(height/2,height/2,height/2)));
+    tQuery.showCube(this, bounds);
+    return this;
+  }
+
+  thenDo && thenDo(null, tQuery);
+}
+
+
+
+// ======================================================================================================================
+
+// THREE.WORLD.JS
+
+(function(code) {
+  var exports = typeof module !== "undefined" && module.exports ?
+    module.exports : THREE.World || (THREE.World = {}); /*evil globals...*/
+  code(exports);
+})(function(exports) {
+
+  // exports
+  exports.create = create;
+
+  // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+  var hasVRSupport = !!navigator.mozGetVRDevices || !!navigator.getVRDevices;
+
+  function create(domEl, options, thenDo) {
+    // Options:
+    // see the options defaults for currently supported flags
+    if (typeof thenDo === "undefined" && typeof options === 'function') {
+      thenDo = options; options = null;
+    }
+
+    options                 = options || {};
+    options.useVR           = options.useVR || false;
+    options.useOrbitControl = options.useOrbitControl || false;
+    options.width           = options.width || window.innerWidth;
+    options.height          = options.height || window.innerHeigh;
+
+    // Export the "world" object that let's us access the state of the scene from
+    // the outside.
+    var world = {
+      renderer:            null,
+      events:              null,
+      scene:               null,
+      camera:              null,
+      orbitControl:        null,
+      vr:                  {},
+      _animationCallbacks: {},
+      _timedAnimationCallbacks: {}
+    }
+
+    world.startLoop               = startLoop.bind(null, world),
+    world.stopLoop                = stopLoop.bind(null, world),
+    world.addAnimationCallback    = addAnimationCallback.bind(null, world),
+    world.removeAnimationCallback = removeAnimationCallback.bind(null, world),
+    world.onResize                = onResize.bind(null, world),
+    world.enterFullScreen         = enterFullScreen.bind(null, world),
+    world.destroy                 = destroy.bind(null, world)
+
+    init(world, domEl, options);
+
+    thenDo && thenDo(null, world);
+    return world;
+  }
+
+
+  // -=-=-=-=-=-=-=-=-=-=-=-
+  // Helper functions below
+  // -=-=-=-=-=-=-=-=-=-=-=-
+
+  // Sets up the scene.
+  function init(world, domElement, options) {
+
+    // Create the scene and set the scene size.
+    var scene = world.scene = new THREE.Scene();
+
+    // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    // Create a renderer and add it to the DOM.
+    var r = world.renderer = new THREE.WebGLRenderer({antialias:true});
+    domElement.appendChild(r.domElement);
+
+    // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    // Create a camera, zoom it out from the model a bit, and add it to the scene.
+    // camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 20000);
+    var camera = world.camera = new THREE.PerspectiveCamera(75, options.width / options.height, 0.1, 1000);
+    camera.aspect = options.width/options.height;
+    camera.updateProjectionMatrix();
+    scene.add(camera);
+
+    if (options.useVR) {
+      if (!hasVRSupport) {
+        alert("Trying to enable webVR but your browser has no support for it!");
+      } else {
+        world.vr = {
+          effect: new THREE.VREffect(r),
+          control: new THREE.VRControls(camera)
+        }
+    	  world.vr.effect.setSize(options.width, options.height);
+        whenHeadmountDisplayReady(world.vr, function() {});
+    	  world.onResize();
+      }
+    } else {
+      r.setSize(options.width, options.height);
+    }
+
+    // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    // Create an event listener that resizes the renderer with the browser window.
+    world._onResize = onResize.bind(null, world);
+    window.addEventListener('resize', world._onResize);
+
+    // world.events = new DOMEvents(world.camera, world.renderer.domElement);
+
+    // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    // controls
+    if (options.useOrbitControl)
+      world.orbitControl = new THREE.OrbitControls(camera, r.domElement);
+
+    world.onResize();
+  }
+
+  // animate is called every once in a while, you can register callbacks
+  function animate(world) {
+    world.loop = requestAnimationFrame(animate.bind(null, world));
+
+    var evt = {
+      type: 'animate',
+      defaultPrevented: false,
+      preventDefault: function() { this.defaultPrevented = true; }
+    }
+
+    var callbackIds = Object.keys(world._animationCallbacks);
+    for (var i = 0; i < callbackIds.length; i++) {
+      world._animationCallbacks[callbackIds[i]](evt);
+      if (evt.defaultPrevented) break;
+    }
+
+    if (world.vr.control) world.vr.control.update();
+    else if (world.orbitControl) world.orbitControl.update();
+
+    (world.vr.effect || world.renderer).render(world.scene, world.camera);
+  }
+
+  function onResize(world) {
+    var width = window.innerWidth,
+        height = window.innerHeight;
+    world.camera.aspect = width / height;
+    world.camera.updateProjectionMatrix();
+    (world.vr.effect || world.renderer).setSize(width, height);
+  }
+
+  function whenHeadmountDisplayReady(state, thenDo) {
+    if (!hasVRSupport) { thenDo(new Error("no vr support")); return; }
+    (navigator.mozGetVRDevices || navigator.getVRDevices)().then(function(devices) {
+
+      devices.forEach(function(dev) {
+        if (dev instanceof HMDVRDevice) state.hmd = dev;
+        else if (dev instanceof PositionSensorVRDevice) state.positionSensor = dev;
+      });
+
+      var posState = state.positionSensor && state.positionSensor.getState();
+      var hasHeadmountDisplay = posState && posState.timeStamp > 0;
+      state.isPseudoVR = !hasHeadmountDisplay;
+      thenDo && thenDo(null, state);
+    });
+  }
+
+  function startLoop(world) {
+    Object.keys(world._timedAnimationCallbacks).forEach(function(name) {
+      var timed = world._timedAnimationCallbacks[name];
+      clearInterval(timed.intervalId);
+      timed.intervalId = setInterval(timed.callback);
+    });
+    animate(world);
+    return world;
+  }
+
+  function stopLoop(world) {
+    cancelAnimationFrame(world.loop);
+    Object.keys(world._timedAnimationCallbacks).forEach(function(name) {
+      var timed = world._timedAnimationCallbacks[name];
+      clearInterval(timed.intervalId);
+    });
+    return world;
+  }
+
+  function addAnimationCallback(world, name, intervalTime, fn) {
+    if (typeof name === "function") { // called just with anim callback
+      fn = name;
+      intervalTime = name = undefined;
+    }
+    if (typeof intervalTime === "function") { // called with name and anim callback
+      fn = intervalTime;
+      intervalTime = undefined;
+    }
+    if (!name) name = "anonymous-callback-" + Date.now();
+
+    if (!intervalTime) return world._animationCallbacks[name] = fn;
+    var time = Date.now();
+    return world._timedAnimationCallbacks[name] = {
+      intervalTime: intervalTime,
+      intervalId: setInterval(function() {
+        var now = Date.now(), delta = now - time;
+        time = now;
+        fn(delta);
+      }, intervalTime),
+      callback: fn
+    };
+  }
+
+  function removeAnimationCallback(world, name) {
+    if (world._animationCallbacks[name]) {
+      delete world._animationCallbacks[name];
+    } else {
+      var timed = world._timedAnimationCallbacks[name];
+      if (timed) {
+        clearInterval(timed.intervalId);
+        delete world._timedAnimationCallbacks[name];
+      }
+    }
+  }
+
+  function removeAllAnimationCallback(world) {
+    Object.keys(world._animationCallbacks).forEach(function(k) { removeAnimationCallback(world, k); });
+    Object.keys(world._timedAnimationCallbacks).forEach(function(k) { removeAnimationCallback(world, k); });
+  }
+
+  function gatherDisposal(obj) {
+    var thrash = [obj.geometry,obj.material,obj.material && obj.material.map]
+    .filter(function(ea) { ea && ea.dispose; });
+    
+    return (obj.children || []).reduce(function(thrash, ea) {
+      return thrash.concat(gatherDisposal(ea)); }, thrash);
+  }
+
+  function enterFullScreen(world) {
+    if (world.vr && world.vr.effect) world.vr.effect.setFullScreen(true);
+    else world.renderer.domElement[world.renderer.domElement.mozRequestFullScreen? 'mozRequestFullScreen' : 'webkitRequestFullScreen']();
+  }
+
+  function destroy(world, thenDo) {
+    if (world._onResize) {
+      window.removeEventListener('resize', world._onResize);
+      delete world._onResize;
+    }
+
+    cancelAnimationFrame(world.loop);
+
+    removeAllAnimationCallback(world);
+
+    gatherDisposal(world.scene)
+      .forEach(function(ea) { ea.dispose(); });
+
+    var r = world.renderer;
+    if (r.domElement.parentNode)
+      r.domElement.parentNode.removeChild(r.domElement);
+
+    thenDo && thenDo();
+  }
+
+});
+
+// ===================================================================================================================
