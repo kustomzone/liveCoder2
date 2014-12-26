@@ -1,0 +1,24 @@
+codeEditor.alignWithCamera("left", world.camera);
+
+// create lots of boxes:
+var geometry = new THREE.BoxGeometry(100, 100, 100),
+    material = new THREE.MeshNormalMaterial(),
+    root = new THREE.Mesh(geometry, material),
+    object, parent = root;
+world.scene.add(root);
+
+lively.lang.arr.range(0,200).reduce(function(parent, _) {
+	object = new THREE.Mesh(geometry, material);
+	object.position.z = -100;
+	parent.add(object);
+  return object;
+}, root)
+
+// animate!
+world.addAnimationCallback("anim", function() {
+  var time = Date.now() * 0.0001,
+      rx = Math.sin(time * 0.2) * 0.1,
+      ry = Math.sin(time * 0.3) * 0.1,
+      rz = Math.sin(time * 0.7) * 0.2;
+  root.traverse(function (object) { object.rotation.set(rx, ry, rz); });
+});

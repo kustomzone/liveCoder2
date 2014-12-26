@@ -65,7 +65,7 @@
         // -=-=-=-=-=-=-=-=-=-=-=-=-=-
 
         var plane = new THREE.Mesh(
-            new THREE.PlaneBufferGeometry(1000,1000, 20,20),
+            new THREE.PlaneBufferGeometry(2000,2000, 20,20),
             new THREE.MeshBasicMaterial({
               color: 0x00ffff, wireframe: true,
               side: THREE.DoubleSide}));
@@ -106,10 +106,9 @@
         } else {
           codeEditor.aceEditor.setOption("mode", "ace/mode/javascript");
 		  
-          var intro = 
-              "\n"
+          var intro = "\n"
             + "\n"
-            + "// Highlight the code and press CRTL-I to run.\n"
+            + "// Highlight some code and press CRTL-I to run.\n"
             + "\n"
             + "\n"
             + "                            Live Code Editor\n"
@@ -135,7 +134,7 @@
             + "}, root)\n"
             + "\n"
             + "world.addAnimationCallback(\"anim\", function() {\n"
-            + "  var time = Date.now() * 0.001,\n"
+            + "  var time = Date.now() * 0.0001,\n"
             + "      rx = Math.sin(time * 0.2) * 0.1,\n"
             + "      ry = Math.sin(time * 0.3) * 0.1,\n"
             + "      rz = Math.sin(time * 0.7) * 0.2;\n"
