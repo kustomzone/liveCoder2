@@ -47,7 +47,8 @@
 	<script type="text/javascript" src="app/three-codeeditor/theme-twilight.js"></script>
 	
 	<!--font-->
-	<script src="http://mrdoob.github.com/three.js/examples/fonts/helvetiker_regular.typeface.js"></script>
+	<script src="js/fonts/droid/droid_sans_bold.typeface.js"></script>
+	<script src="js/fonts/helvetiker_regular.typeface.js"></script>
     
     <!-- SCENE -->
 	
@@ -166,11 +167,12 @@
 			+ "\n"
 			+ "// Happy New Year!\n"
 			+ "\n"
-			+ "var shape   = new THREE.TextGeometry('Happy New Year 2015', {font: 'helvetiker'});\n"
+			+ "var shape   = new THREE.TextGeometry('Happy New Year 2015', {font: 'droid sans', weight: 'bold'});\n"
 			+ "var wrapper = new THREE.MeshNormalMaterial({color: 0x00ff00});\n"
 			+ "var welcome = new THREE.Mesh(shape, wrapper);\n"
-			+ "welcome.position.x = -550;\n"
-			+ "welcome.position.y = 720;\n"
+			+ "\n"
+			+ "welcome.position.x = -700;\n"
+			+ "welcome.position.y = 820;\n"
 			+ "welcome.position.z = -850;\n"
   			+ "\n"
   			+ "world.scene.add(welcome);\n"
