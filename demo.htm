@@ -105,7 +105,9 @@
           codeEditor.setValue(htmlCode);
         } else {
           codeEditor.aceEditor.setOption("mode", "ace/mode/javascript");
-		  
+		
+		/*
+		
           var intro = "\n"
             + "\n"
             + "// Highlight some code and press CRTL-I to run.\n"
@@ -141,9 +143,85 @@
             + "  root.traverse(function (object) { object.rotation.set(rx, ry, rz); });\n"
             + "});\n"
 			+ "\n";
+
+		*/
+			
+		// --------------------------------------------------------
+
+
+			var code = "\n"
+			+ "// Shortcuts...\n"
+			+ "\n"
+			+ "// CTRL-SHIFT-V = PASTE\n"
+			+ "\n"
+			+ "// CTRL-I = RUN\n"
+			+ "\n"
+			+ "// CTRL-Z = CUT\n"
+			+ "\n"
+			+ "// CTRL-<less than> = MENU\n"
+			+ "\n"
+			+ "// --------------------------------------------------------\n"
+			+ "\n"
+			+ "// Reposition Camera...\n"
+			+ "\n"
+			+ "codeEditor.alignWithCamera('left', world.camera);\n"
+			+ "\n"
+			+ "// Draw Sphere...\n"
+			+ "\n"
+			+ "var geometry2  = new THREE.SphereGeometry(200,30,30),\n"
+ 			+  "// material = new THREE.MeshPhongMaterial( { color: 0xe4e4e4 } ),\n"
+			+ "    material   = new THREE.MeshNormalMaterial(),\n"
+ 			+ "   pointerOne = new THREE.PointLight(0xffffff);\n"
+			+ "\n"
+			+ "sphere = new THREE.Mesh(geometry2, material);\n"
+			+ "\n"
+			+ "world.scene.add(sphere);\n"
+			+ "\n"
+			+ "// --------------------------------------------------------\n"
+			+ "\n"
+			+ "// Animate sphere...\n"
+			+ "\n"
+			+ "var render = function () {\n"
+			+ "\n"
+			+ "requestAnimationFrame(render);\n"
+			+ "\n"
+			+ "var time = Date.now() * 0.002;\n"
+			+ "var newX = Math.sin(time * 0.2) * 5;\n"
+			+ "var newY = Math.sin(time * 0.2) * 5;\n"
+			+ "var newZ = Math.cos(time * 0.2) * 5;\n"
+			+ "\n"
+			+ "sphere.position.x += newX;\n"
+			+ "sphere.position.y -= newY;\n"
+			+ "sphere.position.z -= newZ;\n"
+			+ "\n"
+			+ "sphere.rotation.x -= .001; // Spin left to right on the x-axis\n"
+			+ "sphere.rotation.y -= .001; // Spin top to bottom on the y-axis\n"
+			+ "sphere.rotation.z -= .001;\n"
+			+ "\n"
+			+ "// world.scene.render(this, world.camera);\n"
+			+ "world.render(scene, camera);\n"
+			+ "\n"
+			+ "};\n"
+			+ "\n"
+			+ "render();\n"
+			+ "\n"
+			+ "// --------------------------------------------------------\n"
+			+ "\n"
+			+ "// Replay Animation..\n"
+			+ "\n"
+			+ "// --------------------------------------------------------\n"
+			+ "\n"
+			+ "\n"
+			+ "// Remove sphere..\n"
+			+ "\n"
+			+ "world.scene.remove(sphere);\n"
+			+ "\n"
+			+ "// ----------------------eof ------------------------------\n"
+			+ "\n"
+			+ "\n";
 			
 		  codeEditor.setSize(400, 400);
-		  codeEditor.setValue(intro);
+		  codeEditor.setValue(code);
         }
 
         if (world.orbitControl) {
