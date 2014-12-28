@@ -1,13 +1,14 @@
 <!DOCTYPE html>
 <html>
+  
   <head>
     <meta charset="utf-8">
     <title>LiveCoder2 Demo</title>
     <meta http-equiv="cache-control" content="no-cache" />
     <meta http-equiv="pragma" content="no-cache" />
-
   </head>
-  <body style="margin:0;">
+  
+  <body style="margin: 0;">
    
    <!--ui related-->
     <script type="text/javascript" src="js/dat.gui.js"></script>
@@ -109,48 +110,6 @@
           codeEditor.setValue(htmlCode);
         } else {
           codeEditor.aceEditor.setOption("mode", "ace/mode/javascript");
-		
-		/*
-		
-          var intro = "\n"
-            + "\n"
-            + "// Highlight some code and press CRTL-I to run.\n"
-            + "\n"
-            + "\n"
-            + "                            Live Code Editor\n"
-            + "                           ==================\n"
-			+ "\n"
-            + "                           Updated 23/12/2014\n"
-            + "\n"
-			+ "\n"
-            + "codeEditor.alignWithCamera(\"left\", world.camera);\n"
-            + "\n"
-            + "// create lots of boxes:\n"
-            + "var geometry = new THREE.BoxGeometry(100, 100, 100),\n"
-            + "    material = new THREE.MeshNormalMaterial(),\n"
-            + "    root = new THREE.Mesh(geometry, material),\n"
-            + "    object, parent = root;\n"
-            + "world.scene.add(root);\n"
-            + "\n"
-            + "lively.lang.arr.range(0,200).reduce(function(parent, _) {\n"
-            + "	object = new THREE.Mesh(geometry, material);\n"
-            + "	object.position.z = -100;\n"
-            + "	parent.add(object);\n"
-            + "  return object;\n"
-            + "}, root)\n"
-            + "\n"
-            + "world.addAnimationCallback(\"anim\", function() {\n"
-            + "  var time = Date.now() * 0.0001,\n"
-            + "      rx = Math.sin(time * 0.2) * 0.1,\n"
-            + "      ry = Math.sin(time * 0.3) * 0.1,\n"
-            + "      rz = Math.sin(time * 0.7) * 0.2;\n"
-            + "  root.traverse(function (object) { object.rotation.set(rx, ry, rz); });\n"
-            + "});\n"
-			+ "\n";
-
-		*/
-			
-		// --------------------------------------------------------
 
 			var code = "\n"
 			+ "// Shortcuts...\n"
